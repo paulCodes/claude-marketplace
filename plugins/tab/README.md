@@ -36,7 +36,7 @@ This plugin provides 6 commands and 3 named agents that form a complete project 
 Add the marketplace and install the plugin:
 
 ```bash
-claude marketplace add https://github.com/paulCodes/claude-marketplace
+claude marketplace add https://github.com/paulCodes/marketplace
 claude plugin install tab-workflow
 ```
 
