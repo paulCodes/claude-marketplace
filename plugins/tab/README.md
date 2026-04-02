@@ -84,22 +84,40 @@ The plugin includes hooks and a rule for actively collecting feedback while usin
 
 Copy the rule so Claude actively observes Tab interactions:
 
+**Mac/Linux:**
 ```bash
 cp plugins/tab/rules/tab-alpha-testing.md ~/.claude/rules/
 ```
 
+**Windows (PowerShell):**
+```powershell
+Copy-Item plugins\tab\rules\tab-alpha-testing.md $env:USERPROFILE\.claude\rules\
+```
+
 ### 2. Install the feedback hooks
 
-Copy the hook scripts:
-
+**Mac/Linux:**
 ```bash
 cp plugins/tab/scripts/tab-feedback-logger.sh ~/.claude/hooks/
 cp plugins/tab/scripts/tab-feedback-summary.sh ~/.claude/hooks/
 chmod +x ~/.claude/hooks/tab-feedback-logger.sh ~/.claude/hooks/tab-feedback-summary.sh
 ```
 
-Then add to your `~/.claude/settings.json` (merge into existing hooks):
+Requires `jq` on PATH (`brew install jq`).
 
+**Windows (PowerShell):**
+```powershell
+Copy-Item plugins\tab\scripts\tab-feedback-logger.ps1 $env:USERPROFILE\.claude\hooks\
+Copy-Item plugins\tab\scripts\tab-feedback-summary.ps1 $env:USERPROFILE\.claude\hooks\
+```
+
+No extra dependencies — uses native PowerShell JSON handling.
+
+### 3. Configure hooks in settings.json
+
+Add to your `~/.claude/settings.json` (merge into existing hooks):
+
+**Mac/Linux:**
 ```json
 {
   "hooks": {
@@ -130,9 +148,38 @@ Then add to your `~/.claude/settings.json` (merge into existing hooks):
 }
 ```
 
-**Requires:** `jq` on PATH (the hooks use it to parse JSON).
+**Windows:**
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "mcp__tab-for-projects__*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -File ~/.claude/hooks/tab-feedback-logger.ps1",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -File ~/.claude/hooks/tab-feedback-summary.ps1",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
-### 3. Generate feedback
+### 4. Generate feedback
 
 Run `/tab-feedback` anytime to compile observations into a report at `~/.claude/tab-feedback-report.md`.
 
