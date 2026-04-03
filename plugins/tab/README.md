@@ -1,198 +1,217 @@
 # Tab for Projects Plugin
 
-A Claude Code plugin for the **Tab for Projects** workflow -- brainstorming ideas into designs, implementing with sub-agents, verifying code health, and collecting structured feedback.
+A Claude Code plugin that turns [Tab for Projects](https://github.com/4lt7ab/Tab) into a complete project lifecycle manager. One command (`/tab`) handles everything — brainstorming, refinement, implementation, verification, and progress tracking.
 
-## Overview
+## How the Workflow Works
 
-This plugin provides 6 commands and 3 named agents that form a complete project lifecycle:
+### The Three-Tier Architecture
 
-### Commands
+The plugin uses three layers that work together:
+
+| Layer | File | When it's active | What it does |
+|-------|------|-------------------|--------------|
+| **Rule** | `tab-discipline.md` | Every session (always on) | Enforces Tab-first behavior: load context before work, save incrementally, maintain progress logs |
+| **Router** | `tab.md` (`/tab`) | When you invoke `/tab` | Loads your project, detects what you want to do, routes to the right workflow |
+| **Sub-skills** | `tab-work.md`, etc. | When the router dispatches them | Detailed workflow playbooks for each phase |
+
+### The Lifecycle
+
+A project flows through these phases:
+
+```
+Brainstorm → Refine → Implement → Verify → Review → Commit
+     ↑                                              |
+     └──────── Tab has full state at every step ────┘
+```
+
+**1. Brainstorm** (`/tab I have an idea for X`)
+- Collaborative dialogue: one question at a time, multiple choice when possible
+- Creates a draft Tab project IMMEDIATELY (crash recovery — nothing is lost)
+- Proposes 2-3 approaches with trade-offs
+- Saves KB documents as discoveries happen (not at the end)
+- Produces: Tab project with goal, requirements, design, and task backlog
+
+**2. Refine** (`/tab refine` or auto-detected when tasks lack detail)
+- Walks through each task with you to ensure it's well-specified
+- Spawns research agents for unknowns (doesn't guess)
+- Updates Tab tasks in real-time as decisions are made
+- Every task gets: description, implementation plan, acceptance criteria, effort, impact
+
+**3. Implement** (`/tab work on X` or `/tab continue`)
+- Loads project from Tab, creates a branch
+- Dispatches sub-agents in parallel for independent tasks
+- Tracks progress via Tab task statuses (todo → in_progress → done)
+- Maintains a Session Progress Log in Tab (auto-updated after every task)
+- The orchestrator NEVER writes code — always delegates to sub-agents
+
+**4. Verify** (`/tab verify`)
+- Auto-detects project type (TypeScript, Python, Go, etc.)
+- Runs lint, typecheck, and tests
+- Creates Tab tasks for each failure
+- Dispatches fix agents and re-verifies (max 3 cycles)
+
+**5. Review + Commit**
+- Code review is mandatory before commit
+- Review findings become Tab tasks that must be resolved
+- Commit gate checks: all review-findings done, all verification-failures done, all tasks done
+- Never pushes — that's up to you
+
+### Crash Recovery
+
+The plugin is designed to survive session crashes:
+
+- Draft projects are created at the start of brainstorming (not after approval)
+- Tab is updated after every state change (questions, decisions, task completions)
+- Session Progress Log is updated synchronously before dispatching sub-agents
+- On resume, stale `in_progress` tasks are detected and the user is asked what to do
+
+### Knowledge Base
+
+Reusable knowledge (architecture patterns, API limitations, conventions, troubleshooting) is saved as Tab documents and attached to projects. KB docs are saved immediately when discoveries happen — not gated on session end or design approval.
+
+## Commands
 
 | Command | Description | When to use |
 |---------|-------------|-------------|
-| `/tab-brainstorming` | Turn ideas into designs through collaborative dialogue, persist to Tab | Starting any new feature, component, or project |
-| `/tab-refinement` | Walk through backlog tasks with user to ensure they're well-specified | Before implementation, after brainstorming |
-| `/tab-work` | Load a Tab project and execute tasks with sub-agents | Implementing, tackling, or continuing a Tab project |
-| `/tab-verify` | Run lint/typecheck/tests, create bug tasks, auto-fix | After any code change, before committing, health checks |
-| `/tab-feedback` | Compile feedback into a structured report | End of session, or on demand |
-| `/listen` | Enter silence mode — user thinks out loud, then synthesis | When you need to think through something uninterrupted |
+| `/tab` | **Unified entry point** — detects project and intent, routes automatically | Always. This is the main command. |
+| `/tab-brainstorming` | Ideas → designs → Tab project (direct access) | If you want to skip the router |
+| `/tab-refinement` | Walk through tasks to ensure they're well-specified | Direct access to refinement |
+| `/tab-work` | Load project, dispatch agents, implement tasks | Direct access to implementation |
+| `/tab-verify` | Lint/typecheck/tests → Tab tasks → auto-fix | Direct access to verification |
+| `/tab-feedback` | Compile feedback report for Tab creator | Alpha testing feedback |
+| `/listen` | Silence mode — think out loud, then synthesis | When you need to think |
 
-### Agents (spawned by commands)
+### Using `/tab` (recommended)
+
+```
+/tab                              → show project status, ask what to do
+/tab I want to build X            → start brainstorming
+/tab work on doot                 → implement a project
+/tab continue                     → resume where you left off
+/tab verify                       → run checks
+/tab save                         → save progress
+/tab refine                       → review backlog
+```
+
+## Agents
+
+These are spawned by the workflow commands — you don't invoke them directly:
 
 | Agent | Role | Spawned by |
 |-------|------|-----------|
-| `tab-workflow:planner` | Decompose work into tasks with plans and acceptance criteria | tab-work, tab-refinement |
-| `tab-workflow:qa` | Validate work against plans, find gaps, create qa-findings tasks | tab-work, tab-refinement |
-| `tab-workflow:documenter` | Extract knowledge from completed work into Tab KB documents | tab-work |
+| `planner` | Decompose work into tasks with plans and acceptance criteria | tab-work, tab-refinement |
+| `qa` | Validate work against plans, find gaps, create qa-findings tasks | tab-work, tab-refinement |
+| `documenter` | Extract knowledge from completed work into Tab KB documents | tab-work |
 
 ## Prerequisites
 
-- **Tab for Projects MCP server** running at `http://localhost:5069/mcp`
+- **[Tab for Projects](https://github.com/4lt7ab/Tab)** MCP server running at `http://localhost:5069/mcp`
 - **Claude Code** with MCP support
-- Optionally: **Jira MCP server** (for PlexTrac integration with ticket-based projects)
 
 ## Install
 
-Add the marketplace and install the plugin:
+### Via Claude Code marketplace (recommended)
 
 ```bash
-claude marketplace add https://github.com/paulCodes/marketplace
+claude plugin marketplace add paulCodes/marketplace
 claude plugin install tab-workflow
 ```
 
-## Usage
+### Manual install
 
-### Brainstorming a new project
+```bash
+git clone git@github.com:paulCodes/marketplace.git ~/workspaces/marketplace
 
-```
-/tab-brainstorming
-> Let's build a CLI tool called doot that prints ASCII art
-```
+# Copy commands
+cp ~/workspaces/marketplace/plugins/tab/commands/*.md ~/.claude/commands/
 
-The command walks you through clarifying questions, proposes approaches, presents a design for approval, then saves everything to Tab (project + tasks with full implementation details).
+# Copy agents
+mkdir -p ~/.claude/agents
+cp ~/workspaces/marketplace/plugins/tab/agents/*.md ~/.claude/agents/
 
-### Working on a Tab project
-
-```
-/tab-work
-> Work on doot
+# Copy rules
+cp ~/workspaces/marketplace/plugins/tab/rules/*.md ~/.claude/rules/
 ```
 
-Loads the project from Tab, researches the codebase, creates a branch, dispatches sub-agents to implement each task, runs code review, and commits. Never pushes -- that's up to you.
+## Alpha Testing (optional)
 
-### Verifying code health
+If you're helping test Tab for Projects, the plugin includes hooks for automatic feedback collection.
 
-```
-/tab-verify
-```
-
-Auto-detects project type (TypeScript, Python, Go, etc.), runs appropriate checks, creates Tab bug tasks for failures, dispatches fix agents, and re-verifies. Max 3 fix cycles before asking for help.
-
-### Generating feedback
-
-```
-/tab-feedback
-```
-
-Compiles session observations, API logs, feature requests, and friction points into `~/.claude/tab-feedback-report.md` for the Tab creator.
-
-## Alpha Testing Setup (optional)
-
-The plugin includes hooks and a rule for actively collecting feedback while using Tab. This is optional but recommended if you're helping test Tab.
-
-### 1. Install the feedback rule
-
-Copy the rule so Claude actively observes Tab interactions:
+### Install feedback hooks
 
 **Mac/Linux:**
 ```bash
-cp plugins/tab/rules/tab-alpha-testing.md ~/.claude/rules/
+cp ~/workspaces/marketplace/plugins/tab/scripts/tab-feedback-logger.sh ~/.claude/hooks/
+cp ~/workspaces/marketplace/plugins/tab/scripts/tab-feedback-summary.sh ~/.claude/hooks/
+chmod +x ~/.claude/hooks/tab-feedback-*.sh
 ```
+Requires `jq` (`brew install jq`).
 
 **Windows (PowerShell):**
 ```powershell
-Copy-Item plugins\tab\rules\tab-alpha-testing.md $env:USERPROFILE\.claude\rules\
+Copy-Item ~/workspaces/marketplace/plugins/tab/scripts/tab-feedback-logger.ps1 ~/.claude/hooks/
+Copy-Item ~/workspaces/marketplace/plugins/tab/scripts/tab-feedback-summary.ps1 ~/.claude/hooks/
 ```
 
-### 2. Install the feedback hooks
+### Configure hooks in settings.json
 
-**Mac/Linux:**
-```bash
-cp plugins/tab/scripts/tab-feedback-logger.sh ~/.claude/hooks/
-cp plugins/tab/scripts/tab-feedback-summary.sh ~/.claude/hooks/
-chmod +x ~/.claude/hooks/tab-feedback-logger.sh ~/.claude/hooks/tab-feedback-summary.sh
-```
+Add to `~/.claude/settings.json`:
 
-Requires `jq` on PATH (`brew install jq`).
-
-**Windows (PowerShell):**
-```powershell
-Copy-Item plugins\tab\scripts\tab-feedback-logger.ps1 $env:USERPROFILE\.claude\hooks\
-Copy-Item plugins\tab\scripts\tab-feedback-summary.ps1 $env:USERPROFILE\.claude\hooks\
-```
-
-No extra dependencies — uses native PowerShell JSON handling.
-
-### 3. Configure hooks in settings.json
-
-Add to your `~/.claude/settings.json` (merge into existing hooks):
-
-**Mac/Linux:**
 ```json
 {
   "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "mcp__tab-for-projects__*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/tab-feedback-logger.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/tab-feedback-summary.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ]
+    "PostToolUse": [{
+      "matcher": "mcp__tab-for-projects__*",
+      "hooks": [{
+        "type": "command",
+        "command": "~/.claude/hooks/tab-feedback-logger.sh",
+        "timeout": 5
+      }]
+    }],
+    "Stop": [{
+      "hooks": [{
+        "type": "command",
+        "command": "~/.claude/hooks/tab-feedback-summary.sh",
+        "timeout": 5
+      }]
+    }]
   }
 }
 ```
 
-**Windows:**
-```json
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "mcp__tab-for-projects__*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell -File ~/.claude/hooks/tab-feedback-logger.ps1",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell -File ~/.claude/hooks/tab-feedback-summary.ps1",
-            "timeout": 5
-          }
-        ]
-      }
-    ]
-  }
-}
-```
+Windows: replace `.sh` with `.ps1` and prefix with `powershell -File `.
 
-### 4. Generate feedback
+### Generate feedback
 
-Run `/tab-feedback` anytime to compile observations into a report at `~/.claude/tab-feedback-report.md`.
+Run `/tab-feedback` to compile observations into `~/.claude/tab-feedback-report.md`.
 
----
-
-## How it works
-
-The workflow follows this progression:
+## Architecture
 
 ```
-Brainstorm → Design → Tab Project → Tasks → Implement → Verify → Review → Commit
+marketplace/
+└── plugins/tab/
+    ├── commands/
+    │   ├── tab.md                  ← Unified router (entry point)
+    │   ├── tab-brainstorming.md    ← Brainstorm flow (incremental saves)
+    │   ├── tab-work.md             ← Implementation orchestrator (auto progress saves)
+    │   ├── tab-verify.md           ← Verification + auto-fix loop
+    │   ├── tab-refinement.md       ← Backlog grooming
+    │   ├── tab-feedback.md         ← Feedback report compiler
+    │   └── listen.md               ← Listening mode
+    ├── agents/
+    │   ├── planner.md              ← Task decomposition
+    │   ├── qa.md                   ← Work validation
+    │   └── documenter.md           ← Knowledge extraction
+    ├── rules/
+    │   ├── tab-discipline.md       ← Always-on Tab-first discipline
+    │   └── tab-alpha-testing.md    ← Feedback collection (optional)
+    └── scripts/
+        ├── tab-feedback-logger.*   ← PostToolUse hook
+        └── tab-feedback-summary.*  ← Stop hook
 ```
 
-- **Tab is the source of truth** -- all project state (goals, requirements, design, tasks) lives in Tab, not local files
-- **Sub-agent architecture** -- heavy work is delegated to sub-agents while the main conversation orchestrates
-- **Knowledge base** -- reusable knowledge (architecture decisions, conventions, troubleshooting) is extracted into Tab documents and attached to projects
+## Credits
+
+Built on [Tab for Projects](https://github.com/4lt7ab/Tab) by [@4lt7ab](https://github.com/4lt7ab).
+
+Skill architecture inspired by [Everything Claude Code](https://github.com/affaan-m/everything-claude-code) patterns (three-tier: rules → skills → agents).
