@@ -3,7 +3,8 @@
 # Fires on PostToolUse for any tab-for-projects tool.
 # Appends entries to ~/.claude/tab-feedback.jsonl
 
-FEEDBACK_FILE="$HOME/.claude/tab-feedback.jsonl"
+TODAY=$(date -u +"%Y-%m-%d")
+FEEDBACK_FILE="$HOME/.claude/tab-feedback-${TODAY}.jsonl"
 
 # Read stdin (hook input JSON)
 INPUT=$(cat)

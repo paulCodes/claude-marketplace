@@ -23,8 +23,8 @@ This file is the deliverable — hand it to the Tab creator and he can create a 
 
 When invoked:
 
-1. **Read raw API logs** from `~/.claude/tab-feedback.jsonl` (if exists)
-   - Check the file's modification timestamp — it may not cover the current session
+1. **Read raw API logs** from `~/.claude/tab-feedback-{YYYY-MM-DD}.jsonl` (dated files)
+   - Check for today's file and recent days' files
    - Count total calls per tool
    - Identify errors and what caused them
    - Note which tools are used most/least

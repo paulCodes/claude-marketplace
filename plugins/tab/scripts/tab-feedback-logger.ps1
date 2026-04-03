@@ -3,7 +3,8 @@
 # Appends entries to ~/.claude/tab-feedback.jsonl
 # PowerShell version for Windows.
 
-$FeedbackFile = Join-Path $env:USERPROFILE ".claude\tab-feedback.jsonl"
+$Today = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd")
+$FeedbackFile = Join-Path $env:USERPROFILE ".claude\tab-feedback-${Today}.jsonl"
 
 # Read stdin (hook input JSON)
 $Input = $input | Out-String
