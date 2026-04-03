@@ -70,19 +70,29 @@ Every project goes through this process. The design can be short for simple proj
 
 ## Checklist
 
-You MUST create a task for each of these items and complete them in order:
+You MUST complete these steps in order. **Save to Tab incrementally** — a crash at any point must preserve all prior progress.
 
 1. **Explore project context** — check Tab for existing projects, **search KB documents by relevant tags** (architecture, conventions, integration, etc.), check for related skills/architecture references, check files, docs, recent commits (if existing codebase)
-2. **Offer visual companion** (if topic will involve visual questions) — its own message, not combined with a clarifying question
-3. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
-4. **Propose 2-3 approaches** — with trade-offs and your recommendation
-5. **Present design** — in sections scaled to their complexity, get user approval after each section
-6. **Create Tab project** — save goal, requirements, and design to Tab via `mcp__tab-for-projects__create_project`
-7. **Create Tab tasks** — break implementation into tasks with descriptions, effort, impact, categories, and group_keys via `mcp__tab-for-projects__create_task`
-8. **Write implementation details** — update each task with exact implementation steps and acceptance criteria via `mcp__tab-for-projects__update_task`
-9. **Create/attach KB documents** — extract reusable knowledge into Tab documents, attach relevant existing documents to the project
-10. **User reviews Tab project** — ask user to review the project and tasks in Tab before proceeding
-11. **Transition to implementation** — invoke the **tab-work** skill to execute the project
+2. **Create or load Tab project IMMEDIATELY** — if step 1 found an existing project, load it and skip creation. Otherwise, create a draft: `create_project({ items: [{ title: "project name", goal: "rough idea from user", requirements: "TBD", design: "TBD" }] })`. Store the project ID. This is the crash recovery point. All subsequent steps UPDATE this project.
+3. **Offer visual companion** (if topic will involve visual questions) — its own message, not combined with a clarifying question
+4. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria. **After each answered question**, update the Tab project's requirements field:
+   ```
+   mcp__tab-for-projects__update_project({
+     items: [{ id: "<draft_pid>", requirements: "{accumulated requirements so far}" }]
+   })
+   ```
+5. **Save KB docs immediately** — after each answer that reveals a technical constraint, API limitation, or architecture pattern, evaluate once: "Would this help a future project?" If yes, save it as a Tab KB document NOW via a background sub-agent. Do NOT wait for design approval. Concrete triggers:
+   - User or research reveals an API/platform limitation (e.g. "WoW's secure action API blocks X")
+   - A non-obvious architecture pattern is discovered (e.g. "ECC uses rules for cross-cutting, not skills")
+   - A gotcha or workaround is identified that isn't in existing documentation
+6. **Propose 2-3 approaches** — with trade-offs and your recommendation. **Update the Tab project's design field** with the approaches discussed.
+7. **Present design** — in sections scaled to their complexity, get user approval after each section. **Update Tab project design** after each approved section.
+8. **Finalize Tab project** — update goal, requirements, and design to final approved versions
+9. **Create Tab tasks** — break implementation into tasks with descriptions, effort, impact, categories, and group_keys via `mcp__tab-for-projects__create_task`
+10. **Write implementation details** — update each task with exact implementation steps and acceptance criteria via `mcp__tab-for-projects__update_task`
+11. **Create/attach KB documents** — attach any relevant existing KB documents to the project. (New KB docs should already be saved from step 5.)
+12. **User reviews Tab project** — ask user to review the project and tasks in Tab before proceeding
+13. **Transition to implementation** — invoke the **tab-work** skill to execute the project
 
 ## Tab Persistence (replaces local spec files)
 
@@ -152,7 +162,9 @@ Load any relevant documents with `get_document` and use them as context for the 
 
 ### When to create documents
 
-After the design is approved, evaluate: **did this brainstorming produce reusable knowledge?**
+**During brainstorming, not after.** Save KB docs as soon as reusable knowledge surfaces — don't wait for design approval. Use a background sub-agent so it doesn't block the conversation.
+
+After the design is finalized, also evaluate: **did this brainstorming produce additional reusable knowledge?**
 
 - **Architecture decisions** that apply beyond this project → create document tagged `[architecture, decision]`
 - **Conventions** discovered during research → `[conventions]`
@@ -193,36 +205,13 @@ This makes the documents available when tab-work loads the project — sub-agent
 
 ## Process Flow
 
-```dot
-digraph brainstorming {
-    "Explore project context" [shape=box];
-    "Visual questions ahead?" [shape=diamond];
-    "Offer Visual Companion\n(own message)" [shape=box];
-    "Ask clarifying questions" [shape=box];
-    "Propose 2-3 approaches" [shape=box];
-    "Present design sections" [shape=box];
-    "User approves design?" [shape=diamond];
-    "Create Tab project\n(goal + requirements + design)" [shape=box];
-    "Create Tab tasks\n(backlog with groups)" [shape=box];
-    "Write implementation details\n(per task)" [shape=box];
-    "User reviews Tab project?" [shape=diamond];
-    "Invoke tab-work skill" [shape=doublecircle];
+```
+Explore context → Create/load draft project (crash recovery) → Visual companion?
+  → Ask questions (update requirements after each) → Propose approaches (update design)
+  → Present design sections (update design after each) → Finalize project
+  → Create tasks → Write implementation details → User reviews → tab-work
 
-    "Explore project context" -> "Visual questions ahead?";
-    "Visual questions ahead?" -> "Offer Visual Companion\n(own message)" [label="yes"];
-    "Visual questions ahead?" -> "Ask clarifying questions" [label="no"];
-    "Offer Visual Companion\n(own message)" -> "Ask clarifying questions";
-    "Ask clarifying questions" -> "Propose 2-3 approaches";
-    "Propose 2-3 approaches" -> "Present design sections";
-    "Present design sections" -> "User approves design?";
-    "User approves design?" -> "Present design sections" [label="no, revise"];
-    "User approves design?" -> "Create Tab project\n(goal + requirements + design)" [label="yes"];
-    "Create Tab project\n(goal + requirements + design)" -> "Create Tab tasks\n(backlog with groups)";
-    "Create Tab tasks\n(backlog with groups)" -> "Write implementation details\n(per task)";
-    "Write implementation details\n(per task)" -> "User reviews Tab project?";
-    "User reviews Tab project?" -> "Write implementation details\n(per task)" [label="changes requested"];
-    "User reviews Tab project?" -> "Invoke tab-work skill" [label="approved"];
-}
+  At ANY point: save KB docs immediately when reusable knowledge surfaces
 ```
 
 ## The Process
@@ -263,7 +252,7 @@ digraph brainstorming {
 
 **Save to Tab:**
 
-1. Create a Tab project with the approved goal, requirements, and full design
+1. Update the Tab project (created in step 2) with the approved goal, requirements, and full design
 2. Break the design into implementation tasks with:
    - Clear titles (imperative form)
    - Descriptions with enough context for a sub-agent to execute

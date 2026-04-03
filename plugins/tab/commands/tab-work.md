@@ -87,6 +87,22 @@ Every Tab task MUST have these fields:
 
 ---
 
+## Automatic Session Progress Saves (applies to ALL steps)
+
+Maintain a "Session Progress Log" Tab document for the active project. This section applies throughout the entire workflow — not just during Step 4.
+
+**Initialization (synchronous, do once at session start):**
+Call `mcp__tab-for-projects__list_documents({ project_id: "<pid>" })` and look for a document titled "Session Progress Log". If none exists, create one synchronously with `create_document` and store the returned ID.
+
+**Save triggers:**
+- **After each task marked done** — append what was completed (background agent)
+- **Before dispatching sub-agents** — log what's about to happen. **This save MUST be synchronous** (crash recovery point).
+- **After sub-agents return** — log results and decisions (background agent)
+- **On any blocker or significant decision** — log context for future sessions (background agent)
+- **Do not dispatch two progress-save agents concurrently.** Write a single combined entry after batches.
+
+---
+
 ## Sub-Agent Architecture
 
 The main conversation is an **orchestrator**. Heavy work is delegated to sub-agents.
@@ -261,6 +277,8 @@ mcp__tab-for-projects__update_task({
   items: [{ id: "<id>", project_id: "<pid>", status: "done" }]
 })
 ```
+
+*See "Automatic Session Progress Saves" section above — save triggers apply here during execution.*
 
 ### Design Sync — Keep project design field current
 
@@ -587,7 +605,7 @@ When the user says **"save our work"**, **"save progress"**, etc.:
    ```
 3. **Back up Tab database** to Google Drive:
    ```
-   /Users/parker/.local/bin/tab-db-backup.sh
+   ~/.local/bin/tab-db-backup.sh
    ```
 4. If there are uncommitted changes, offer to commit
 
