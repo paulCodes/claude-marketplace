@@ -1,4 +1,4 @@
-# Tab for Projects Plugin
+# Tab for Projects Plugin (v1.1.0)
 
 A Claude Code plugin that turns [Tab for Projects](https://github.com/4lt7ab/Tab) into a complete project lifecycle manager. One command (`/tab`) handles everything — brainstorming, refinement, implementation, verification, and progress tracking.
 
@@ -79,7 +79,6 @@ Reusable knowledge (architecture patterns, API limitations, conventions, trouble
 | `/tab-work` | Load project, dispatch agents, implement tasks | Direct access to implementation |
 | `/tab-verify` | Lint/typecheck/tests → Tab tasks → auto-fix | Direct access to verification |
 | `/tab-feedback` | Compile feedback report for Tab creator | Alpha testing feedback |
-| `/listen` | Silence mode — think out loud, then synthesis | When you need to think |
 
 ### Using `/tab` (recommended)
 
@@ -93,6 +92,8 @@ Reusable knowledge (architecture patterns, API limitations, conventions, trouble
 /tab refine                       → review backlog
 ```
 
+Command names map to filenames: `tab-work.md` becomes `/tab-work`.
+
 ## Agents
 
 These are spawned by the workflow commands — you don't invoke them directly:
@@ -103,9 +104,11 @@ These are spawned by the workflow commands — you don't invoke them directly:
 | `qa` | Validate work against plans, find gaps, create qa-findings tasks | tab-work, tab-refinement |
 | `documenter` | Extract knowledge from completed work into Tab KB documents | tab-work |
 
+These are named agents with their own `.md` instruction files. The workflow also spawns general-purpose sub-agents (research, implement, test, fix) using Claude Code's built-in agent types — those are not separate files.
+
 ## Prerequisites
 
-- **[Tab for Projects](https://github.com/4lt7ab/Tab)** MCP server running at `http://localhost:5069/mcp`
+- **[Tab for Projects](https://github.com/4lt7ab/Tab)** MCP server running locally (default: `http://localhost:5069/mcp` — check your Tab config if connection fails)
 - **Claude Code** with MCP support
 
 ## Install
@@ -136,6 +139,8 @@ cp ~/workspaces/marketplace/plugins/tab/rules/*.md ~/.claude/rules/
 ## Alpha Testing (optional)
 
 If you're helping test Tab for Projects, the plugin includes hooks for automatic feedback collection.
+
+> **Note:** The `tab-alpha-testing.md` rule is included in the base install and will observe Tab API interactions in-session. The steps below add **hook scripts** for automated log capture to a JSONL file.
 
 ### Install feedback hooks
 
@@ -196,8 +201,7 @@ marketplace/
     │   ├── tab-work.md             ← Implementation orchestrator (auto progress saves)
     │   ├── tab-verify.md           ← Verification + auto-fix loop
     │   ├── tab-refinement.md       ← Backlog grooming
-    │   ├── tab-feedback.md         ← Feedback report compiler
-    │   └── listen.md               ← Listening mode
+    │   └── tab-feedback.md         ← Feedback report compiler
     ├── agents/
     │   ├── planner.md              ← Task decomposition
     │   ├── qa.md                   ← Work validation

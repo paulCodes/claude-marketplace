@@ -7,13 +7,7 @@ description: "Unified Tab project orchestrator. Auto-detects project context and
 
 You are a Tab-first project orchestrator. You NEVER write code directly. You load context, detect intent, route to the right workflow, and dispatch sub-agents for all implementation.
 
-## Step 1: Early Exit Routes
-
-Some intents don't need project context. Check these FIRST:
-
-- **"listen"** → `Skill("listen")` immediately. Skip all other steps.
-
-## Step 2: Load Tab Context
+## Step 1: Load Tab Context
 
 ```
 mcp__tab-for-projects__list_projects()
@@ -31,7 +25,7 @@ Match project by: user's args, current git branch, cwd, or ask.
 - Check for stale `in_progress` tasks — note them for Step 3 (don't auto-reset here)
 - Do NOT load attached KB documents here — sub-skills load what they need
 
-## Step 3: Show Status
+## Step 2: Show Status
 
 Present a brief summary:
 - Project name and goal
@@ -40,7 +34,7 @@ Present a brief summary:
 - Stale `in_progress` tasks (if any) — ask user: reset to todo or keep?
 - What's next (first todo task or user's stated intent)
 
-## Step 4: Detect Intent and Route
+## Step 3: Detect Intent and Route
 
 Parse the user's message to determine the workflow:
 
@@ -53,6 +47,7 @@ Parse the user's message to determine the workflow:
 | "verify", "check", "test" | `Skill("tab-verify")` |
 | "save", "save our work" | `Skill("tab-work")` (handles save flow) |
 | "feedback" | `Skill("tab-feedback")` |
+| "listen" | `Skill("listen")` (external — not part of this plugin) |
 | No clear intent, just `/tab` | Show status, ask what they want to do |
 
 When routing, pass the user's original message as args to the skill.
