@@ -1,5 +1,5 @@
 ---
-name: tab
+name: main
 description: "Unified Tab project orchestrator. Auto-detects project context and routes to the right workflow. Always Tab-first. Use /tab for all project work — brainstorm, refine, implement, verify, save."
 ---
 
@@ -12,7 +12,7 @@ You are a Tab-first project orchestrator. You NEVER write code directly. You loa
 Some intents don't need project context. Check these FIRST:
 
 - **"listen"** → `Skill("listen")` immediately. Skip all other steps.
-- **PR review intent** (PR URL, "review PR #123", "pr dashboard") → `Skill("tab-workflow:tab-pr-review")` with the user's args. Skip all other steps.
+- **PR review intent** (PR URL, "review PR #123", "pr dashboard") → `Skill("tab-workflow:review-pr")` with the user's args. Skip all other steps.
 
 ## Step 2: Load Tab Context
 
@@ -23,7 +23,7 @@ mcp__tab-for-projects__list_projects()
 Match project by: user's args, current git branch, cwd, or ask.
 
 **If no match found:**
-- User described an idea → `Skill("tab-workflow:tab-brainstorming")` with the user's message. Skip Steps 3-4.
+- User described an idea → `Skill("tab-workflow:brainstorm")` with the user's message. Skip Steps 3-4.
 - No idea described → ask which project they mean. Stop.
 
 **If matched:**
@@ -47,21 +47,21 @@ Parse the user's message to determine the workflow:
 
 | Intent | Route to |
 |--------|----------|
-| New idea, "I want to build X" | `Skill("tab-workflow:tab-brainstorming")` |
-| "refine", "groom", "review tasks" | `Skill("tab-workflow:tab-refinement")` |
-| "work on X", "implement", "tackle" | `Skill("tab-workflow:tab-work")` |
-| "continue", "resume", "pick up" | `Skill("tab-workflow:tab-work")` |
-| "verify", "check", "test" | `Skill("tab-workflow:tab-verify")` |
-| "save", "save our work" | `Skill("tab-workflow:tab-work")` (handles save flow) |
-| "feedback" | `Skill("tab-workflow:tab-feedback")` |
-| "review PR", "review #3", PR URL | `Skill("tab-workflow:tab-pr-review")` |
-| "pr dashboard", "open PRs", "show PRs" | `Skill("tab-workflow:tab-pr-review")` |
+| New idea, "I want to build X" | `Skill("tab-workflow:brainstorm")` |
+| "refine", "groom", "review tasks" | `Skill("tab-workflow:refine")` |
+| "work on X", "implement", "tackle" | `Skill("tab-workflow:work")` |
+| "continue", "resume", "pick up" | `Skill("tab-workflow:work")` |
+| "verify", "check", "test" | `Skill("tab-workflow:verify")` |
+| "save", "save our work" | `Skill("tab-workflow:work")` (handles save flow) |
+| "feedback" | `Skill("tab-workflow:feedback")` |
+| "review PR", "review #3", PR URL | `Skill("tab-workflow:review-pr")` |
+| "pr dashboard", "open PRs", "show PRs" | `Skill("tab-workflow:review-pr")` |
 | No clear intent, just `/tab` | Show status, ask what they want to do |
 
 When routing, pass the user's original message as args to the skill.
 
 **Auto-detection (after showing status, before asking user):**
-If status shows many tasks with missing `implementation` or `acceptance_criteria`, suggest running `tab-workflow:tab-refinement` before starting work. This is a suggestion, not an automatic route — let the user decide.
+If status shows many tasks with missing `implementation` or `acceptance_criteria`, suggest running `tab-workflow:refine` before starting work. This is a suggestion, not an automatic route — let the user decide.
 
 ## Hard Rules
 

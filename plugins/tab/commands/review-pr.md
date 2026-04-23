@@ -1,6 +1,6 @@
 ---
-name: tab-pr-review
-description: "Multi-agent PR review with voice-controlled comment posting. Reviews PRs using specialized parallel agents, walks through findings one at a time, and posts with human-sounding voice. Use with /tab-workflow:tab-pr-review {url} or /tab-workflow:tab-pr-review for dashboard."
+name: review-pr
+description: "Multi-agent PR review with voice-controlled comment posting. Reviews PRs using specialized parallel agents, walks through findings one at a time, and posts with human-sounding voice. Use with /tab-workflow:review-pr {url} or /tab-workflow:review-pr for dashboard."
 ---
 
 # Tab PR Review

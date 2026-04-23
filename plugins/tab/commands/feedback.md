@@ -1,6 +1,6 @@
 ---
-name: tab-feedback
-description: "Generate a Tab for Projects feedback report. Compiles raw API logs, session observations, feature requests, and friction points into a clean markdown file the Tab creator can use to create a project. Invoke with /tab-workflow:tab-feedback to generate the report."
+name: feedback
+description: "Generate a Tab for Projects feedback report. Compiles raw API logs, session observations, feature requests, and friction points into a clean markdown file the Tab creator can use to create a project. Invoke with /tab-workflow:feedback to generate the report."
 ---
 
 # Tab Feedback Report Generator
@@ -9,7 +9,7 @@ Compile Tab for Projects feedback into a structured markdown report that the Tab
 
 ## When to invoke
 
-- `/tab-workflow:tab-feedback` — generate or update the feedback report
+- `/tab-workflow:feedback` — generate or update the feedback report
 - End of a session that heavily used Tab
 - When the user says "generate tab feedback", "update tab feedback", "what do we have for tab"
 
@@ -92,7 +92,7 @@ These are observations from building the Tab workflow skills:
 
 1. **Task dependencies (blocked_by / blocks)**
    - Priority: high
-   - Context: During tab-workflow:tab-work, we sequence tasks manually because there's no way to express "task B depends on task A"
+   - Context: During tab-workflow:work, we sequence tasks manually because there's no way to express "task B depends on task A"
    - Workaround: We use group_keys and manual ordering in the skill instructions
    - Suggestion: Add `blocked_by: [task_id]` and `blocks: [task_id]` fields to tasks
 

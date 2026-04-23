@@ -1,6 +1,6 @@
 # Tab Workflow Plugin (v2.0.0)
 
-A Claude Code plugin that turns [Tab for Projects](https://github.com/4lt7ab/Tab) into a full project lifecycle manager. One command (`/tab-workflow:tab`) routes between brainstorming, refinement, implementation, code review, PR review, and verification, with all state persisted in Tab.
+A Claude Code plugin that turns [Tab for Projects](https://github.com/4lt7ab/Tab) into a full project lifecycle manager. One command (`/tab-workflow:main`) routes between brainstorming, refinement, implementation, code review, PR review, and verification, with all state persisted in Tab.
 
 This is not a wrapper around `git commit`. It is a multi-agent orchestration system that manages research, planning, parallel implementation, a 5-agent quality gate, finding walk-throughs, deviation detection, crash recovery, and knowledge extraction across your entire project lifecycle.
 
@@ -11,31 +11,32 @@ The plugin uses three layers that work together:
 | Layer | File | When it runs | What it does |
 |-------|------|--------------|--------------|
 | **Rule** | `tab-discipline.md` | Every session (always on) | Enforces Tab-first behavior: load context before work, save incrementally, maintain progress logs |
-| **Router** | `tab.md` (`/tab-workflow:tab`) | When you invoke `/tab-workflow:tab` | Loads your project, detects intent, routes to the right workflow |
-| **Sub-skills** | `tab-work.md`, `tab-verify.md`, etc. | When the router dispatches | Detailed workflow playbooks for each phase |
+| **Router** | `main.md` (`/tab-workflow:main`) | When you invoke `/tab-workflow:main` | Loads your project, detects intent, routes to the right workflow |
+| **Sub-skills** | `work.md`, `verify.md`, etc. | When the router dispatches | Detailed workflow playbooks for each phase |
 
 ## Commands
 
 | Command | Description | When to use |
 |---------|-------------|-------------|
-| `/tab-workflow:tab` | **Unified entry point.** Detects project and intent, routes automatically. | Always. This is the main command. |
-| `/tab-workflow:tab-brainstorming` | Ideas to designs to Tab project (direct access) | Skip the router for brainstorming |
-| `/tab-workflow:tab-refinement` | Walk through tasks to ensure they are well-specified | Direct access to refinement |
-| `/tab-workflow:tab-work` | Load project, dispatch agents, implement tasks | Direct access to implementation |
-| `/tab-workflow:tab-verify` | Lint/typecheck/tests with auto-fix loop and commit gate | Direct access to verification |
-| `/tab-workflow:tab-pr-review` | Multi-agent PR review with voice-controlled comment posting | Review PRs with parallel agents |
-| `/tab-workflow:tab-feedback` | Compile feedback report for Tab creator | Alpha testing feedback |
+| `/tab-workflow:main` | **Unified entry point.** Detects project and intent, routes automatically. | Always. This is the main command. |
+| `/tab-workflow:setup` | First-time setup wizard -- checks prerequisites, installs rules, verifies configuration | Run once after installing the plugin |
+| `/tab-workflow:brainstorm` | Ideas to designs to Tab project (direct access) | Skip the router for brainstorming |
+| `/tab-workflow:refine` | Walk through tasks to ensure they are well-specified | Direct access to refinement |
+| `/tab-workflow:work` | Load project, dispatch agents, implement tasks | Direct access to implementation |
+| `/tab-workflow:verify` | Lint/typecheck/tests with auto-fix loop and commit gate | Direct access to verification |
+| `/tab-workflow:review-pr` | Multi-agent PR review with voice-controlled comment posting | Review PRs with parallel agents |
+| `/tab-workflow:feedback` | Compile feedback report for Tab creator | Alpha testing feedback |
 
-### Using `/tab-workflow:tab` (recommended)
+### Using `/tab-workflow:main` (recommended)
 
 ```
-/tab-workflow:tab                              Show project status, ask what to do
-/tab-workflow:tab I want to build X            Start brainstorming
-/tab-workflow:tab work on doot                 Implement a project
-/tab-workflow:tab continue                     Resume where you left off
-/tab-workflow:tab verify                       Run checks
-/tab-workflow:tab save                         Save progress
-/tab-workflow:tab refine                       Review backlog
+/tab-workflow:main                             Show project status, ask what to do
+/tab-workflow:main I want to build X           Start brainstorming
+/tab-workflow:main work on doot                Implement a project
+/tab-workflow:main continue                    Resume where you left off
+/tab-workflow:main verify                      Run checks
+/tab-workflow:main save                        Save progress
+/tab-workflow:main refine                      Review backlog
 ```
 
 ## The Lifecycle
@@ -50,7 +51,7 @@ Brainstorm --> Refine --> Implement --> Verify --> Review --> Commit
 
 ### Brainstorm
 
-`/tab-workflow:tab I have an idea for X`
+`/tab-workflow:main I have an idea for X`
 
 - Collaborative dialogue: one question at a time, multiple choice when possible
 - Creates a draft Tab project immediately (crash recovery from the first minute)
@@ -60,7 +61,7 @@ Brainstorm --> Refine --> Implement --> Verify --> Review --> Commit
 
 ### Refine
 
-`/tab-workflow:tab refine` or auto-detected when tasks lack detail
+`/tab-workflow:main refine` or auto-detected when tasks lack detail
 
 - Walks through each task to ensure it is well-specified
 - Spawns research agents for unknowns instead of guessing
@@ -69,7 +70,7 @@ Brainstorm --> Refine --> Implement --> Verify --> Review --> Commit
 
 ### Implement
 
-`/tab-workflow:tab work on X` or `/tab-workflow:tab continue`
+`/tab-workflow:main work on X` or `/tab-workflow:main continue`
 
 The implementation orchestrator is the core of the plugin. It never writes code itself. Instead, it coordinates sub-agents while tracking all progress in Tab.
 
@@ -109,7 +110,7 @@ The user can override the recommendation.
 
 ### Verify
 
-`/tab-workflow:tab-verify` or automatically after every code change
+`/tab-workflow:verify` or automatically after every code change
 
 - Auto-detects project type (TypeScript, Python, Go, etc.)
 - Runs lint, typecheck, and tests
@@ -117,7 +118,7 @@ The user can override the recommendation.
 - Dispatches fix agents and re-verifies (max 3 cycles)
 - Checks KB for known troubleshooting patterns before dispatching generic fix agents
 
-**Commit gate mode** (`/tab-workflow:tab-verify --commit-gate`): Goes beyond technical checks to verify the full workflow completed correctly.
+**Commit gate mode** (`/tab-workflow:verify --commit-gate`): Goes beyond technical checks to verify the full workflow completed correctly.
 
 ```
 Commit Gate
@@ -141,7 +142,7 @@ Staleness:
 
 ### PR Review
 
-`/tab-workflow:tab-pr-review {url}` or `/tab-workflow:tab-pr-review` for dashboard
+`/tab-workflow:review-pr {url}` or `/tab-workflow:review-pr` for dashboard
 
 A standalone multi-agent PR review pipeline:
 
@@ -171,9 +172,9 @@ These are spawned by the workflow commands. You do not invoke them directly.
 
 | Agent | Role | Spawned by |
 |-------|------|-----------|
-| `planner` | Decompose work into tasks with plans and acceptance criteria | tab-work, tab-refinement |
-| `qa` | Validate work against plans, find gaps, create qa-findings tasks | tab-work, tab-refinement |
-| `documenter` | Extract knowledge from completed work into Tab KB documents | tab-work |
+| `planner` | Decompose work into tasks with plans and acceptance criteria | work, refine |
+| `qa` | Validate work against plans, find gaps, create qa-findings tasks | work, refine |
+| `documenter` | Extract knowledge from completed work into Tab KB documents | work |
 
 The workflows also spawn purpose-built agents at runtime: classifier, research, implement, test, code reviewer, acceptance QA, edge case QA, code smells, test reviewer, fix, and verify. These are defined inline in the workflow prompts, not as separate files.
 
@@ -190,6 +191,8 @@ The workflows also spawn purpose-built agents at runtime: classifier, research, 
 /plugin marketplace add paulCodes/marketplace
 /plugin install tab-workflow@paulCodes-marketplace
 ```
+
+Then run `/tab-workflow:setup` to check prerequisites, install rules, and verify your configuration.
 
 ### Rules (manual step)
 
@@ -268,7 +271,7 @@ Windows: replace `.sh` with `.ps1` and prefix with `powershell -File `.
 
 ### Generate feedback
 
-Run `/tab-workflow:tab-feedback` to compile observations. All feedback lives in `~/.claude/tab-feedback/`:
+Run `/tab-workflow:feedback` to compile observations. All feedback lives in `~/.claude/tab-feedback/`:
 
 ```
 ~/.claude/tab-feedback/
@@ -288,13 +291,14 @@ marketplace/
     .claude-plugin/
       plugin.json             Plugin metadata (name, version, author)
     commands/
-      tab.md                  Unified router (entry point)
-      tab-brainstorming.md    Brainstorm flow (incremental saves)
-      tab-work.md             Implementation orchestrator (workflow routing, quality gate)
-      tab-verify.md           Verification + commit gate + auto-fix loop
-      tab-refinement.md       Backlog grooming
-      tab-pr-review.md        Multi-agent PR review with voice-controlled posting
-      tab-feedback.md         Feedback report compiler
+      main.md                 Unified router (entry point)
+      setup.md                First-time setup wizard
+      brainstorm.md           Brainstorm flow (incremental saves)
+      work.md                 Implementation orchestrator (workflow routing, quality gate)
+      verify.md               Verification + commit gate + auto-fix loop
+      refine.md               Backlog grooming
+      review-pr.md            Multi-agent PR review with voice-controlled posting
+      feedback.md             Feedback report compiler
     agents/
       planner.md              Task decomposition
       qa.md                   Work validation
