@@ -144,7 +144,28 @@ tab-alpha-testing.md (optional)
 
 If yes, run: `cp ~/workspaces/marketplace/plugins/tab/rules/tab-alpha-testing.md ~/.claude/rules/tab-alpha-testing.md`
 
-## Step 5: Quick Start Guide
+## Step 5: Companion Plugins
+
+Offer optional companion plugins that extend the Tab workflow.
+
+### code-review (optional)
+
+Print:
+
+```
+The code-review plugin provides multi-agent PR reviews with voice-controlled
+comment posting. When Tab is available, it verifies code against project
+acceptance criteria.
+
+Install it? (yes/no)
+```
+
+- If yes: print "Run `/plugin install code-review@paulCodes-marketplace` to install."
+- If no: print "Skipping. You can install it later with `/plugin install code-review@paulCodes-marketplace`."
+
+Move to Step 6.
+
+## Step 6: Quick Start Guide
 
 Print:
 
@@ -156,8 +177,10 @@ Tab Workflow is ready. Available commands:
   /tab-workflow:refine      Walk through tasks to ensure they're well-specified
   /tab-workflow:work        Implement tasks with sub-agents and quality gates
   /tab-workflow:verify      Run lint/typecheck/tests, auto-fix failures
-  /tab-workflow:review-pr   Multi-agent PR review with voice-controlled posting
   /tab-workflow:feedback    Compile Tab feedback report
+
+Optional (requires code-review plugin):
+  /code-review:review       Multi-agent PR review with voice-controlled posting
 
 Start with:
   /tab-workflow:main              Show project status

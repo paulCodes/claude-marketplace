@@ -1,9 +1,9 @@
 ---
-name: review-pr
-description: "Multi-agent PR review with voice-controlled comment posting. Reviews PRs using specialized parallel agents, walks through findings one at a time, and posts with human-sounding voice. Use with /tab-workflow:review-pr {url} or /tab-workflow:review-pr for dashboard."
+name: review
+description: "Multi-agent PR review with voice-controlled comment posting. Specialized parallel agents review code, findings are walked through one at a time, and comments sound human. Use with /code-review:review {url} or /code-review:review for dashboard."
 ---
 
-# Tab PR Review
+# PR Review
 
 Multi-agent PR review pipeline with voice-controlled comment posting. Two modes: **dashboard** (no args) and **review** (PR URL or number from dashboard).
 
@@ -78,7 +78,7 @@ Run all of these in parallel:
 - Fetch inline review comments via `get_pull_request_comments` MCP tool
 - Fetch conversation comments via `gh api repos/{owner}/{repo}/issues/{pr_number}/comments`
   - **Two APIs needed.** Inline comments and conversation comments are separate. Most human feedback lives in conversation comments. Skipping the second call means missing context already discussed.
-- **Tab project lookup**: Search `mcp__tab-for-projects__list_projects()` for a project matching the PR title, branch name, or description keywords. If found, load the project's tasks (`list_tasks({ project_id, status: "done" })` and `list_tasks({ project_id, status: "in_progress" })`) to get acceptance criteria. Pass these to the Acceptance QA agent in Step 3.
+- **Tab project lookup (optional):** If the Tab for Projects MCP server is available, search `mcp__tab-for-projects__list_projects()` for a project matching the PR title, branch name, or description keywords. If found, load the project's tasks (`list_tasks({ project_id, status: "done" })` and `list_tasks({ project_id, status: "in_progress" })`) to get acceptance criteria. Pass these to the Acceptance QA agent in Step 3. If Tab is not available, skip this step.
 
 After metadata returns (provides the branch name), checkout the PR branch:
 ```bash
@@ -377,11 +377,11 @@ Most backports should be "quick diff" to verify the cherry-pick is clean and no 
 
 ---
 
-## Tab Integration
+## Tab Integration (Optional)
 
-This command does NOT require a Tab project to run. It operates independently.
+This command does NOT require Tab for Projects to run. It operates fully independently.
 
-However, if a Tab project exists for the work being reviewed:
+However, if a Tab MCP server is available and a project exists for the work being reviewed:
 - Check for attached KB documents that provide context about the codebase area
 - Note any Tab tasks related to the PR's changes
 - After posting a review, optionally create a Tab task to track follow-up items identified during review

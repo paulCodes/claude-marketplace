@@ -1,6 +1,6 @@
 # Tab Workflow Plugin (v2.0.0)
 
-A Claude Code plugin that turns [Tab for Projects](https://github.com/4lt7ab/Tab) into a full project lifecycle manager. One command (`/tab-workflow:main`) routes between brainstorming, refinement, implementation, code review, PR review, and verification, with all state persisted in Tab.
+A Claude Code plugin that turns [Tab for Projects](https://github.com/4lt7ab/Tab) into a full project lifecycle manager. One command (`/tab-workflow:main`) routes between brainstorming, refinement, implementation, and verification, with all state persisted in Tab.
 
 This is not a wrapper around `git commit`. It is a multi-agent orchestration system that manages research, planning, parallel implementation, a 5-agent quality gate, finding walk-throughs, deviation detection, crash recovery, and knowledge extraction across your entire project lifecycle.
 
@@ -24,7 +24,6 @@ The plugin uses three layers that work together:
 | `/tab-workflow:refine` | Walk through tasks to ensure they are well-specified | Direct access to refinement |
 | `/tab-workflow:work` | Load project, dispatch agents, implement tasks | Direct access to implementation |
 | `/tab-workflow:verify` | Lint/typecheck/tests with auto-fix loop and commit gate | Direct access to verification |
-| `/tab-workflow:review-pr` | Multi-agent PR review with voice-controlled comment posting | Review PRs with parallel agents |
 | `/tab-workflow:feedback` | Compile feedback report for Tab creator | Alpha testing feedback |
 
 ### Using `/tab-workflow:main` (recommended)
@@ -44,9 +43,9 @@ The plugin uses three layers that work together:
 A project flows through these phases:
 
 ```
-Brainstorm --> Refine --> Implement --> Verify --> Review --> Commit
-     ^                                                  |
-     +------------ Tab has full state at every step ----+
+Brainstorm --> Refine --> Implement --> Verify --> Commit
+     ^                                              |
+     +--------- Tab has full state at every step ---+
 ```
 
 ### Brainstorm
@@ -139,19 +138,6 @@ Workflow:
 Staleness:
 - [ ] Verification ran after the most recent code change
 ```
-
-### PR Review
-
-`/tab-workflow:review-pr {url}` or `/tab-workflow:review-pr` for dashboard
-
-A standalone multi-agent PR review pipeline:
-
-- **Dashboard mode**: shows all open PRs across repos, numbered for quick selection
-- **Review mode**: 5-7 parallel agents analyze the diff (edge case QA, acceptance QA, researcher, code reviewer, code smells, test reviewer, dynamic specialists)
-- **Tab project lookup**: when a Tab project matches the PR, acceptance criteria from Tab tasks are used to verify the code, not just the PR description
-- **Finding walk-through**: same one-at-a-time protocol as the implementation quality gate
-- **Voice-controlled posting**: comments are drafted in a human voice (no AI tells, no em dashes, no "Hey!" openers), reviewed by you, then batch-posted via the GitHub API
-- **Backport detection**: recognizes cherry-picks targeting release branches and offers skip, quick diff, or full review
 
 ### Crash Recovery
 
@@ -297,7 +283,6 @@ marketplace/
       work.md                 Implementation orchestrator (workflow routing, quality gate)
       verify.md               Verification + commit gate + auto-fix loop
       refine.md               Backlog grooming
-      review-pr.md            Multi-agent PR review with voice-controlled posting
       feedback.md             Feedback report compiler
     agents/
       planner.md              Task decomposition
@@ -310,6 +295,12 @@ marketplace/
       tab-feedback-logger.*   PostToolUse hook
       tab-feedback-summary.*  Stop hook
 ```
+
+## Companion Plugins
+
+| Plugin | Command | What it adds |
+|--------|---------|-------------|
+| **[code-review](../code-review/README.md)** | `/code-review:review` | Multi-agent PR review with voice-controlled comment posting. When Tab is available, verifies code against project acceptance criteria. |
 
 ## Credits
 
