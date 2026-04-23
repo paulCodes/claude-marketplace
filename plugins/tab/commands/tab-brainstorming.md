@@ -20,7 +20,7 @@ Determine the project type early — it affects workspace location, conventions,
 | Type | Workspace | Branch naming | Commit format | Verification |
 |------|-----------|---------------|---------------|--------------|
 | **PlexTrac** | `~/workspaces/plextrac/{repo}` | `{TICKET-KEY}-{kebab}` | `{TICKET-KEY}: description` | `/verify` (repo-specific) |
-| **Personal** | `~/workspaces/{project-slug}` | `{project-slug}-{kebab}` | Short descriptive message | `/tab-verify` (auto-detect) |
+| **Personal** | `~/workspaces/{project-slug}` | `{project-slug}-{kebab}` | Short descriptive message | `/tab-workflow:tab-verify` (auto-detect) |
 
 **PlexTrac projects:**
 - Originate from a Jira ticket (user says "brainstorm IO-2097" or provides a ticket key)
@@ -92,7 +92,7 @@ You MUST complete these steps in order. **Save to Tab incrementally** — a cras
 10. **Write implementation details** — update each task with exact implementation steps and acceptance criteria via `mcp__tab-for-projects__update_task`
 11. **Create/attach KB documents** — attach any relevant existing KB documents to the project. (New KB docs should already be saved from step 5.)
 12. **User reviews Tab project** — ask user to review the project and tasks in Tab before proceeding
-13. **Transition to implementation** — invoke the **tab-work** skill to execute the project
+13. **Transition to implementation** — invoke the **tab-workflow:tab-work** skill to execute the project
 
 ## Tab Persistence (replaces local spec files)
 
@@ -193,7 +193,7 @@ mcp__tab-for-projects__update_project({
 })
 ```
 
-This makes the documents available when tab-work loads the project — sub-agents get them as context automatically.
+This makes the documents available when tab-workflow:tab-work loads the project — sub-agents get them as context automatically.
 
 ### Tags reference
 
@@ -209,7 +209,7 @@ This makes the documents available when tab-work loads the project — sub-agent
 Explore context → Create/load draft project (crash recovery) → Visual companion?
   → Ask questions (update requirements after each) → Propose approaches (update design)
   → Present design sections (update design after each) → Finalize project
-  → Create tasks → Write implementation details → User reviews → tab-work
+  → Create tasks → Write implementation details → User reviews → tab-workflow:tab-work
 
   At ANY point: save KB docs immediately when reusable knowledge surfaces
 ```
@@ -277,9 +277,9 @@ Wait for the user's response. Only proceed once approved.
 
 **Implementation:**
 
-- Invoke the **tab-work** skill to execute the project
-- tab-work handles: research → branch → implement → verify → review → fix → commit
-- tab-work uses **tab-verify** for automated test/lint/typecheck with bug task creation
+- Invoke the **tab-workflow:tab-work** skill to execute the project
+- tab-workflow:tab-work handles: research → branch → implement → verify → review → fix → commit
+- tab-workflow:tab-work uses **tab-workflow:tab-verify** for automated test/lint/typecheck with bug task creation
 
 ## Key Principles
 

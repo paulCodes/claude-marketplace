@@ -1,6 +1,6 @@
 ---
 name: tab-refinement
-description: "Facilitate backlog refinement — walk through Tab project tasks with the user to ensure they're understood, well-specified, and actionable before implementation. Use when user says 'refine', 'groom', 'review backlog', or before starting /tab-work on a project."
+description: "Facilitate backlog refinement — walk through Tab project tasks with the user to ensure they're understood, well-specified, and actionable before implementation. Use when user says 'refine', 'groom', 'review backlog', or before starting /tab-workflow:tab-work on a project."
 ---
 
 # Tab Refinement
@@ -9,9 +9,9 @@ Facilitate a backlog refinement session — walk through Tab project tasks to en
 
 ## When to use
 
-- `/tab-refinement` — before starting implementation on a Tab project
+- `/tab-workflow:tab-refinement` — before starting implementation on a Tab project
 - User says "refine tasks", "groom the backlog", "review tasks before we start"
-- Between `/tab-brainstorming` (design) and `/tab-work` (implementation)
+- Between `/tab-workflow:tab-brainstorming` (design) and `/tab-workflow:tab-work` (implementation)
 
 ## Step 1: Resolve project
 
@@ -135,7 +135,7 @@ Summarize what changed:
 - Tasks still needing attention
 - Note if any background agents are still running
 
-> "Backlog refined. {N} tasks ready for implementation. Run `/tab-work` when you're ready to start."
+> "Backlog refined. {N} tasks ready for implementation. Run `/tab-workflow:tab-work` when you're ready to start."
 
 ## Principles
 

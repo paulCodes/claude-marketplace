@@ -1,16 +1,16 @@
 ---
 name: tab-verify
-description: "Run verification checks (lint, typecheck, tests), create Tab bug tasks for any failures, and dispatch sub-agents to fix them. Use anytime with /tab-verify to check code health and auto-triage failures into Tab."
+description: "Run verification checks (lint, typecheck, tests), create Tab bug tasks for any failures, and dispatch sub-agents to fix them. Use anytime with /tab-workflow:tab-verify to check code health and auto-triage failures into Tab."
 ---
 
 # Tab Verify
 
-Run project verification checks, create Tab tasks for failures, and dispatch fix sub-agents. Works standalone or as part of the tab-work workflow.
+Run project verification checks, create Tab tasks for failures, and dispatch fix sub-agents. Works standalone or as part of the tab-workflow:tab-work workflow.
 
 ## When to use
 
-- `/tab-verify` — run checks anytime
-- After any code change during tab-work
+- `/tab-workflow:tab-verify` — run checks anytime
+- After any code change during tab-workflow:tab-work
 - Before committing
 - To check overall project health
 
@@ -173,7 +173,7 @@ Skip this for routine fixes (typos, missing imports, etc.). Only document patter
 
 ## Commit Gate Mode
 
-When invoked with `--commit-gate` or called from tab-work Step 5, run the FULL pre-commit checklist. This goes beyond lint/typecheck/tests to verify the entire workflow completed correctly.
+When invoked with `--commit-gate` or called from tab-workflow:tab-work Step 5, run the FULL pre-commit checklist. This goes beyond lint/typecheck/tests to verify the entire workflow completed correctly.
 
 ### The checklist
 
@@ -224,28 +224,28 @@ Show the full checklist with pass/fail for each item. If any item fails:
 
 **The commit gate MUST pass before committing.** If the user overrides, note it in the Session Progress Log as an explicit override.
 
-## Integration with tab-work
+## Integration with tab-workflow:tab-work
 
-tab-work invokes tab-verify at these points:
+tab-workflow:tab-work invokes tab-workflow:tab-verify at these points:
 - After Step 4a (implementation) -- verify implementation compiles and passes
 - After Step 4b (tests) -- verify new tests pass
 - After Step 4d (review fixes) -- verify fixes don't introduce regressions
 - **Step 5 (commit)** -- invoke with `--commit-gate` for the full pre-commit checklist
 
-When called without `--commit-gate`, tab-verify runs technical checks only (lint, typecheck, tests). The commit gate adds workflow checks (review findings, QA findings, task statuses).
+When called without `--commit-gate`, tab-workflow:tab-verify runs technical checks only (lint, typecheck, tests). The commit gate adds workflow checks (review findings, QA findings, task statuses).
 
 ## Standalone usage
 
-When invoked standalone (not part of tab-work):
+When invoked standalone (not part of tab-workflow:tab-work):
 1. Auto-detect project type from current directory
 2. Find or ask for Tab project
 3. Run checks, create tasks, fix, re-verify
 4. Show final status
 
 ```
-/tab-verify                    # run all checks
-/tab-verify --commit-gate      # full pre-commit checklist (technical + workflow)
-/tab-verify --lint-only        # just lint
-/tab-verify --tests-only       # just tests
-/tab-verify --no-fix           # report only, don't dispatch fix agents
+/tab-workflow:tab-verify                    # run all checks
+/tab-workflow:tab-verify --commit-gate      # full pre-commit checklist (technical + workflow)
+/tab-workflow:tab-verify --lint-only        # just lint
+/tab-workflow:tab-verify --tests-only       # just tests
+/tab-workflow:tab-verify --no-fix           # report only, don't dispatch fix agents
 ```

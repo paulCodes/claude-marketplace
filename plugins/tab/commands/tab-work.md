@@ -23,7 +23,7 @@ Complete a **Tab project** using **sub-agents to preserve main context**. The ma
 | **Branch** | `{project-slug}-{kebab}` |
 | **Commit** | Short descriptive message |
 | **Standards** | Language conventions + CLAUDE.md |
-| **Verification** | `/tab-verify` (auto-detect) |
+| **Verification** | `/tab-workflow:tab-verify` (auto-detect) |
 | **Never push** | Yes, user pushes |
 
 ---
@@ -59,7 +59,7 @@ Hard rules. No exceptions.
 
 - **NEVER** read source code files (.py, .ts, .tsx, .js, .lua, etc.). Only read notes, CLAUDE.md, git state.
 - **NEVER** use Edit, Write, or Bash to create or modify source code or tests.
-- **NEVER** run tests, linters, or typecheckers directly. Delegate to agents or `/tab-verify`.
+- **NEVER** run tests, linters, or typecheckers directly. Delegate to agents or `/tab-workflow:tab-verify`.
 - **NEVER** do agent work when agents fail. Debug the issue and re-spawn instead.
 - **NEVER** present agent deviations as positive design decisions without user approval.
 - **NEVER** skip ceremony gates ("it's a small change"). Use a lightweight workflow instead.
@@ -183,7 +183,7 @@ The orchestrator re-spawns with the handoff report as context and remaining task
 - Reset stale `in_progress` tasks back to `todo`, or ask the user what to do with them
 - Read `notes/progress.md` if it exists for context on what was done before
 
-If no Tab project exists yet, suggest running the **tab-brainstorming** skill first.
+If no Tab project exists yet, suggest running the **tab-workflow:tab-brainstorming** skill first.
 
 ---
 
@@ -267,7 +267,7 @@ mcp__tab-for-projects__update_project({
 
 - **Tasks exist with all fields populated**: Summarize the task list, confirm execution order with user
 - **Tasks exist but missing fields**: Fill in missing fields (implementation, acceptance_criteria, effort, impact, category, group_key)
-- **No tasks**: Use **tab-brainstorming** skill to create them, or work with user to break the design into tasks
+- **No tasks**: Use **tab-workflow:tab-brainstorming** skill to create them, or work with user to break the design into tasks
 
 **Ensure test tasks exist.** If the project has no tasks with `category: "test"`, create them.
 
@@ -316,14 +316,14 @@ When a task with `category: "design"` is marked done, update the project's `desi
 
 ### Verification Loop
 
-**Every time code changes, invoke the `tab-verify` skill.** It will:
+**Every time code changes, invoke the `tab-workflow:tab-verify` skill.** It will:
 1. Auto-detect project type and run appropriate checks (lint, typecheck, tests)
 2. Create Tab bug tasks for any failures (`group_key: "verification-failures"`)
 3. Dispatch fix sub-agents to resolve them
 4. Re-verify until clean (max 3 cycles)
 
 ```
-Implement --> /tab-verify --> Test --> /tab-verify --> Review --> Fix --> /tab-verify --> Commit
+Implement --> /tab-workflow:tab-verify --> Test --> /tab-workflow:tab-verify --> Review --> Fix --> /tab-workflow:tab-verify --> Commit
 ```
 
 ### 4a. Implementation sub-agent(s)
@@ -364,7 +364,7 @@ Implement the changes. When done, return:
 
 1. **Deviation detection.** Compare the agent's output against the Tab task plan. For each task the agent worked on, check: did it follow the implementation plan? If the agent deviated, report it clearly: "Plan said [A], agent did [B] because [reason]." NEVER present deviations positively. Ask the user to approve or fix. This matters because deviations can break assumptions other tasks depend on.
 
-2. **Run `/tab-verify`.** Mark task `done` in Tab if verification passes.
+2. **Run `/tab-workflow:tab-verify`.** Mark task `done` in Tab if verification passes.
 
 ### 4b. Test sub-agent
 
@@ -520,7 +520,7 @@ Do NOT fix anything, just report.
 
 ## Step 5: Commit (main context)
 
-**Run the full commit gate:** Invoke `/tab-verify --commit-gate` for the project. This checks both technical (lint, typecheck, tests) and workflow (review findings resolved, QA findings resolved, all tasks done, no governance items) gates in one pass.
+**Run the full commit gate:** Invoke `/tab-workflow:tab-verify --commit-gate` for the project. This checks both technical (lint, typecheck, tests) and workflow (review findings resolved, QA findings resolved, all tasks done, no governance items) gates in one pass.
 
 If the commit gate fails, fix the issues first. The user can explicitly defer workflow items, but technical failures must be resolved.
 
@@ -655,5 +655,5 @@ mcp__tab-for-projects__update_project({
 
 ## References
 
-- **Tab brainstorming**: tab-brainstorming skill (idea --> design --> Tab project + tasks)
-- **Verification**: tab-verify skill (auto-detect project type, run checks, create bug tasks)
+- **Tab brainstorming**: tab-workflow:tab-brainstorming skill (idea --> design --> Tab project + tasks)
+- **Verification**: tab-workflow:tab-verify skill (auto-detect project type, run checks, create bug tasks)

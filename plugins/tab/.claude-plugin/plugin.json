@@ -1,11 +1,10 @@
 {
   "name": "tab-workflow",
   "version": "2.0.0",
-  "description": "Tab for Projects workflow — brainstorm, refine, implement, verify, and review PRs with parallel specialist agents and multi-agent quality gates. All state persists to Tab for crash recovery.",
+  "description": "Project lifecycle manager built on Tab for Projects. Brainstorm, refine, implement, verify, and review PRs with multi-agent quality gates.",
   "author": {
-    "name": "Paul Parker",
-    "email": "airete@gmail.com"
+    "name": "Paul Parker"
   },
   "repository": "https://github.com/paulCodes/marketplace",
-  "keywords": ["tab", "projects", "workflow", "brainstorming", "verification", "pr-review", "code-review", "quality-gate", "multi-agent"]
+  "license": "MIT"
 }
