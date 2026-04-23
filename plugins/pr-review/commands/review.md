@@ -1,6 +1,6 @@
 ---
 name: review
-description: "Multi-agent PR review with voice-controlled comment posting. Specialized parallel agents review code, findings are walked through one at a time, and comments sound human. Use with /code-review:review {url} or /code-review:review for dashboard."
+description: "Multi-agent PR review with voice-controlled comment posting. Specialized parallel agents review code, findings are walked through one at a time, and comments sound human. Use with /pr-review:review {url} or /pr-review:review for dashboard."
 ---
 
 # PR Review

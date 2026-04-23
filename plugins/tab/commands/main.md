@@ -12,7 +12,7 @@ You are a Tab-first project orchestrator. You NEVER write code directly. You loa
 Some intents don't need project context. Check these FIRST:
 
 - **"listen"** → `Skill("listen")` immediately. Skip all other steps.
-- **PR review intent** (PR URL, "review PR #123", "pr dashboard") → `Skill("code-review:review")` with the user's args (requires code-review plugin). Skip all other steps.
+- **PR review intent** (PR URL, "review PR #123", "pr dashboard") → `Skill("pr-review:review")` with the user's args (requires pr-review plugin). Skip all other steps.
 
 ## Step 2: Load Tab Context
 
@@ -54,8 +54,8 @@ Parse the user's message to determine the workflow:
 | "verify", "check", "test" | `Skill("tab-workflow:verify")` |
 | "save", "save our work" | `Skill("tab-workflow:work")` (handles save flow) |
 | "feedback" | `Skill("tab-workflow:feedback")` |
-| "review PR", "review #3", PR URL | `Skill("code-review:review")` (requires code-review plugin) |
-| "pr dashboard", "open PRs", "show PRs" | `Skill("code-review:review")` (requires code-review plugin) |
+| "review PR", "review #3", PR URL | `Skill("pr-review:review")` (requires pr-review plugin) |
+| "pr dashboard", "open PRs", "show PRs" | `Skill("pr-review:review")` (requires pr-review plugin) |
 | No clear intent, just `/tab` | Show status, ask what they want to do |
 
 When routing, pass the user's original message as args to the skill.

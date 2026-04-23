@@ -147,20 +147,20 @@ If yes, run: `cp ~/workspaces/marketplace/plugins/tab/rules/tab-alpha-testing.md
 
 Offer optional companion plugins that extend the Tab workflow.
 
-### code-review (optional)
+### pr-review (optional)
 
 Print:
 
 ```
-The code-review plugin provides multi-agent PR reviews with voice-controlled
+The pr-review plugin provides multi-agent PR reviews with voice-controlled
 comment posting. When Tab is available, it verifies code against project
 acceptance criteria.
 
 Install it? (yes/no)
 ```
 
-- If yes: print "Run `/plugin install code-review@paulCodes-marketplace` to install."
-- If no: print "Skipping. You can install it later with `/plugin install code-review@paulCodes-marketplace`."
+- If yes: print "Run `/plugin install pr-review@paulCodes-marketplace` to install."
+- If no: print "Skipping. You can install it later with `/plugin install pr-review@paulCodes-marketplace`."
 
 Move to Step 6.
 
@@ -178,8 +178,8 @@ Tab Workflow is ready. Available commands:
   /tab-workflow:verify      Run lint/typecheck/tests, auto-fix failures
   /tab-workflow:feedback    Compile Tab feedback report
 
-Optional (requires code-review plugin):
-  /code-review:review       Multi-agent PR review with voice-controlled posting
+Optional (requires pr-review plugin):
+  /pr-review:review       Multi-agent PR review with voice-controlled posting
 
 Start with:
   /tab-workflow:main              Show project status

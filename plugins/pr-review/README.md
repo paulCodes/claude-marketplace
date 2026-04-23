@@ -1,4 +1,4 @@
-# code-review
+# pr-review
 
 Multi-agent PR review plugin for Claude Code. Dispatches 5-7 specialized review agents in parallel, deduplicates and ranks their findings, then walks you through each one individually so you control exactly what gets posted. Comments are drafted in a natural teammate voice with strict rules against AI tells.
 
@@ -45,15 +45,15 @@ Comments read like a teammate wrote them, not a bot.
 
 ```
 /plugin marketplace add paulCodes/marketplace
-/plugin install code-review@paulCodes-marketplace
+/plugin install pr-review@paulCodes-marketplace
 ```
 
 ## Usage
 
 ```
-/code-review:review                    Show open PR dashboard
-/code-review:review {PR URL}           Review a specific PR
-/code-review:review #3                 Review PR #3 from dashboard
+/pr-review:review                    Show open PR dashboard
+/pr-review:review {PR URL}           Review a specific PR
+/pr-review:review #3                 Review PR #3 from dashboard
 ```
 
 ## Integrations

@@ -300,7 +300,7 @@ marketplace/
 
 | Plugin | Command | What it adds |
 |--------|---------|-------------|
-| **[code-review](../code-review/README.md)** | `/code-review:review` | Multi-agent PR review with voice-controlled comment posting. When Tab is available, verifies code against project acceptance criteria. |
+| **[pr-review](../pr-review/README.md)** | `/pr-review:review` | Multi-agent PR review with voice-controlled comment posting. When Tab is available, verifies code against project acceptance criteria. |
 
 ## Credits
 
